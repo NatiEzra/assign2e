@@ -1,8 +1,12 @@
-const express = require('express');
-const app = express();
-const dotenv = require('dotenv').config();
 const port=process.env.PORT;
-require('dotenv/config');
+import initApp from "./server.ts";
+
+initApp.then((app) => {
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
+});
+
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
