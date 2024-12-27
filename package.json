@@ -28,6 +28,7 @@
     "test": "jest --detectOpenHandles --forceExit --runInBand --coverage",
     "testComments": "jest --detectOpenHandles --forceExit comments.test.ts",
     "testPost": "jest --detectOpenHandles --forceExit posts.test.ts",
+    "testAuth": "jest --detectOpenHandles --forceExit auth.test.ts",
     "lint": "eslint . --ext .ts"
   }
 }

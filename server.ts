@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import express, { Express } from 'express';
 import postRoutes from './routes/postRoutes';
 import commentRoutes from './routes/commentRoutes';
+import authRoutes from './routes/authRoutes';
 dotenv.config();
 
 const app = express();
@@ -12,6 +13,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/posts", postRoutes);
 app.use("/comments",commentRoutes);
+app.use("/auth", authRoutes);
 
 const mongo=mongoose.connection;
 mongo.on('error', (error) => console.error(error));
