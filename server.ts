@@ -2,15 +2,16 @@ import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import express, { Express } from 'express';
-import postModel from './model/post';
+import postRoutes from './routes/postRoutes';
+import commentRoutes from './routes/commentRoutes';
 dotenv.config();
 
 const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use("/posts", postModel);
-app.use("/comments", require("./routes/commentRoutes"));
+app.use("/posts", postRoutes);
+app.use("/comments",commentRoutes);
 
 const mongo=mongoose.connection;
 mongo.on('error', (error) => console.error(error));
@@ -18,7 +19,7 @@ mongo.once('open', () => console.log('Connected to database'));
 
 
 const initApp = ()=>{
-    return new Promise <express>((resolve, reject) => {
+    return new Promise <Express>((resolve, reject) => {
         if(!process.env.db_connect){
             reject('Database connection string is not provided');
         }

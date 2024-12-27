@@ -1,15 +1,17 @@
 import commentModel from '../model/comment';
-const createComment = async (req, res) => {
+import { Request, Response } from "express";
+
+const createComment = async (req:Request, res:Response) => {
     const commentBody = req.body;
     try {
         const savedComment = await commentModel.create(commentBody);
         res.status(201).send(savedComment);
     } catch (error) {
-        res.status(400).send(error.message);
+        res.status(400).send(error);
     }
 }
 
-const getAllComments= async (req, res) => {
+const getAllComments= async (req:Request, res:Response) => {
     const filter= req.query.postId;
     if (filter){
         const comment=await commentModel.find({postId:filter});
@@ -20,12 +22,12 @@ const getAllComments= async (req, res) => {
         const comments = await commentModel.find();
         res.status(200).send(comments);
         } catch (error) {
-        res.status(400).send(error.message);
+        res.status(400).send(error);
         }
     }
     };
 
-const updateComment= async (req, res) => {
+const updateComment= async (req:Request, res:Response) => {
     const {id} = req.params;
     const commentBody = req.body;
     try {
@@ -34,28 +36,45 @@ const updateComment= async (req, res) => {
         if(!comment) {
             res.status(404).send('comment not found');
         }
-        return res.status(200).json(comment);
+         res.status(200).json(comment);
     }
     catch (error) {
-        res.status(400).send(error.message);
+        res.status(400).send(error);
     }
 };
 
-const deleteComment= async (req, res) => { 
+const deleteComment= async (req:Request, res:Response) => { 
     const { id } = req.params;
     try {
         const comment = await commentModel.findByIdAndDelete(id);
         if (!comment) {
             res.status(404).send('comment not found');
         }
-        return res.status(200).json(comment);
+         res.status(200).json(comment);
     } catch (error) {
-        res.status(400).send(error.message);
+        res.status(400).send(error);
     }
 };
+
+const getCommentById= async (req:Request, res:Response) => {
+    const { id } = req.params;
+    try {
+    const comment = await commentModel.findById(id);
+    if (comment==null) {
+        res.status(404).send("comment not found");
+    }
+    else
+    {
+    res.status(200).send(comment);
+    }
+    } catch (error) {
+        res.status(400).send(error);
+    }
+}
 export default { 
     createComment,
     getAllComments,
     updateComment,
-    deleteComment
+    deleteComment,
+    getCommentById
  };
