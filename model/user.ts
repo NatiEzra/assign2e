@@ -10,8 +10,8 @@ export interface interUser {
 const userSchema = new mongoose.Schema<interUser>({
   email: {
     type: String,
-    required: true,
     unique: true,
+    required: true,
   },
   password: {
     type: String,
