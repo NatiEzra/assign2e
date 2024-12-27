@@ -29,16 +29,33 @@ describe("Posts Tests", () => {
 
   test("Test Create Post", async () => {
     const response = await request(app).post("/posts").send({
+      title: "Test Post-1",
+      content: "Test Content-1",
+      SenderId: "TestSenderId-1",
+    });
+    expect(response.statusCode).toBe(201);
+    expect(response.body.title).toBe("Test Post-1");
+    expect(response.body.content).toBe("Test Content-1");
+    expect(response.body.SenderId).toBe("TestSenderId-1");
+    postId = response.body._id;
+  });
+
+
+  test("Test Update Post", async () => {
+    const response = await request(app).put("/posts/" + postId).send({
       title: "Test Post",
       content: "Test Content",
       SenderId: "TestSenderId",
     });
-    expect(response.statusCode).toBe(201);
+    expect(response.statusCode).toBe(200);
     expect(response.body.title).toBe("Test Post");
     expect(response.body.content).toBe("Test Content");
     expect(response.body.SenderId).toBe("TestSenderId");
-    postId = response.body._id;
+    
   });
+
+
+
 
   test("Test get post by Sender Id", async () => {
     const response = await request(app).get("/posts/?SenderId=TestSenderId");
