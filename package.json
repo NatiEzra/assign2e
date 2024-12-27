@@ -25,7 +25,7 @@
   "scripts": {
     "start": "node app.js",
     "devstart": "nodemon app.js",
-    "test": "jest --detectOpenHandles --forceExit --runInBand",
+    "test": "jest --detectOpenHandles --forceExit --runInBand --coverage",
     "testComments": "jest --detectOpenHandles --forceExit comments.test.ts",
     "testPost": "jest --detectOpenHandles --forceExit posts.test.ts",
     "lint": "eslint . --ext .ts"

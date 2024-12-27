@@ -39,7 +39,7 @@ const updateComment= async (req:Request, res:Response) => {
          res.status(200).json(comment);
     }
     catch (error) {
-        res.status(400).send(error);
+        res.status(400);
     }
 };
 

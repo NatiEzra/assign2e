@@ -54,6 +54,16 @@ describe("Posts Tests", () => {
     
   });
 
+  test("Test Update Post Fail", async () => {
+    const response = await request(app).put("/posts/" + postId+"21344sdsfdhf").send({
+      title: "Test Post",
+      content: "Test Content",
+      SenderId: "TestSenderId",
+    });
+    expect(response.statusCode).not.toBe(200);
+    
+  });
+
 
 
 
