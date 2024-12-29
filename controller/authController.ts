@@ -1,6 +1,6 @@
 
 import userModel, { interUser } from "../model/user";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { Document } from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -49,15 +49,15 @@ const generateToken = (userId: string): tTokens | null => {
         _id: userId,
         random: random
     },
+    
         process.env.TOKEN_SECRET,
         { expiresIn: process.env.TOKEN_EXPIRES });
-
     const refreshToken = jwt.sign({
         _id: userId,
         random: random
     },
         process.env.TOKEN_SECRET,
-        { expiresIn: process.env.REFRESH_TOKEN_EXPIRES });
+        { expiresIn: process.env.TOKEN_EXPIRES});
     return {
         accessToken: accessToken,
         refreshToken: refreshToken
@@ -70,20 +70,13 @@ const login = async (req: Request, res: Response) => {
     const password= req.body.password;
     const userExists=await userModel.findOne({email:email
     });
-    console.log('here');
-    console.log(userExists);
     if(!userExists){
-        console.log("User does not exist");
-        console.log(email);
         res.status(400).send("Username or pasword is incorrect");
         return;
     }
     else{
         const validPassword= await bcrypt.compare(password,userExists.password);
-        console.log(validPassword);
-        console.log('here2')
         if(!validPassword){
-            console.log("Password is incorrect");
             res.status(400).send("Username or pasword is incorrect");
             return;
         }
@@ -101,7 +94,6 @@ const login = async (req: Request, res: Response) => {
         }
         userExists.refreshToken.push(tokens.refreshToken);
         await userExists.save();
-
         res.status(200).send(
             {
                 accessToken: tokens.accessToken,
@@ -118,9 +110,33 @@ const login = async (req: Request, res: Response) => {
         res.status(400).send(err);
     }
 };
+type Payload = {
+    _id: string,
+}
 
+export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+    const authHeader = req.header('authorization');
+    const token = authHeader && authHeader.split(' ')[1];
+    if (token == null) {
+        res.sendStatus(401);
+        return;
+    }
+    if (!process.env.TOKEN_SECRET) {
+        res.status(500).send('Server Error');
+        return;
+    }
+    jwt.verify(token, process.env.TOKEN_SECRET, (err, payload) => {
+        
+        if (err) {
+            res.status(401).send('Unauthorized');
+            return;
+        }
+        req.params.userId = (payload as Payload)._id;
+        next();
+    });
+}
 export default  {
     register,
-    login
+    login,
 };
 

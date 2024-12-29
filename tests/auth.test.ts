@@ -95,7 +95,7 @@ describe("Auth Tests", () => {
     const response = await request(app).post("/posts").send({
       title: "Test Post",
       content: "Test Content",
-      owner: "sdfSd",
+      SenderId: "sdfSd",
     });
     expect(response.statusCode).not.toBe(201);
     const response2 = await request(app).post("/posts").set(
@@ -103,7 +103,7 @@ describe("Auth Tests", () => {
     ).send({
       title: "Test Post",
       content: "Test Content",
-      owner: "sdfSd",
+      SenderId: "sdfSd",
     });
     expect(response2.statusCode).toBe(201);
   });
@@ -169,7 +169,7 @@ describe("Auth Tests", () => {
     ).send({
       title: "Test Post",
       content: "Test Content",
-      owner: "sdfSd",
+      SenderId: "sdfSd",
     });
     expect(response2.statusCode).not.toBe(201);
 
@@ -184,7 +184,7 @@ describe("Auth Tests", () => {
     ).send({
       title: "Test Post",
       content: "Test Content",
-      owner: "sdfSd",
+      SenderId: "sdfSd",
     });
     expect(response4.statusCode).toBe(201);
   });
