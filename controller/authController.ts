@@ -1,11 +1,9 @@
 
-import userModel, { interUser } from "../model/user";
-import { NextFunction, Request, Response } from "express";
-import { Document } from 'mongoose';
 import bcrypt from 'bcrypt';
+import { NextFunction, Request, Response } from "express";
 import jwt from 'jsonwebtoken';
-import { hash } from "crypto";
-
+import { Document } from 'mongoose';
+import userModel, { interUser } from "../model/user";
 
 const register = async (req: Request, res: Response) => {
     const user: interUser = req.body;
@@ -57,7 +55,7 @@ const generateToken = (userId: string): tTokens | null => {
         random: random
     },
         process.env.TOKEN_SECRET,
-        { expiresIn: process.env.TOKEN_EXPIRES});
+        { expiresIn: process.env.REFRESH_TOKEN_EXPIRES});
     return {
         accessToken: accessToken,
         refreshToken: refreshToken
@@ -125,6 +123,8 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
         res.status(500).send('Server Error');
         return;
     }
+    //check if the the access token is exipred
+    
     jwt.verify(token, process.env.TOKEN_SECRET, (err, payload) => {
         
         if (err) {
@@ -135,8 +135,104 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
         next();
     });
 }
+
+type tUser = Document<unknown, {}, interUser> & interUser & Required<{
+    _id: string;
+}> & {
+    __v: number;
+}
+const verifyRefreshToken = (refreshToken: string | undefined) => {
+    return new Promise<tUser>((resolve, reject) => {
+        //get refresh token from body
+        if (!refreshToken) {
+            reject("fail");
+            return;
+        }
+        //verify token
+        if (!process.env.TOKEN_SECRET) {
+            console.log("hello no token secret");
+            reject("fail");
+            return;
+        }
+        jwt.verify(refreshToken, process.env.TOKEN_SECRET, async (err: any, payload: any) => {
+            if (err) {
+                console.log(err);
+                console.log("hello error in verify");
+                reject("fail");
+                return
+            }
+            //get the user id fromn token
+            const userId = payload._id;
+            try {
+                //get the user form the db
+                const user = await userModel.findById(userId);
+                if (!user) {
+                    reject("fail");
+                    return;
+                }
+                if (!user.refreshToken || !user.refreshToken.includes(refreshToken)) {
+                    user.refreshToken = [];
+                    await user.save();
+                    reject("fail");
+                    return;
+                }
+                const tokens = user.refreshToken!.filter((token) => token !== refreshToken);
+                user.refreshToken = tokens;
+
+                resolve(user);
+            } catch (err) {
+                reject("fail");
+                return;
+            }
+        });
+    });
+}
+const logout = async (req: Request, res: Response) => {
+    try {
+        console.log("here "+req.body);
+        const user = await userModel.findById(req.body.userId);
+        if (!user) {
+            res.status(400).send("fail");
+            return;
+        }
+        user.refreshToken = [];
+        await user.save();
+        res.status(200).send("success");
+    } catch (err) {
+        res.status(400).send("fail");
+    }
+}
+const refresh = async (req: Request, res: Response) => {
+    try {
+        const user = await verifyRefreshToken(req.body.refreshToken);
+        if (!user) {
+            res.status(400).send("fail");
+            return;
+        }
+        const tokens = generateToken(user._id);
+        if (!tokens) {
+            res.status(500).send('Server Error');
+            return;
+        }
+        if (!user.refreshToken) {
+            user.refreshToken = [];
+        }
+        user.refreshToken.push(tokens.refreshToken);
+        await user.save();
+        res.status(200).send(
+            {
+                accessToken: tokens.accessToken,
+                refreshToken: tokens.refreshToken,
+                _id: user._id
+            });
+        //send new token
+    } catch (err) {
+        res.status(400).send("fail");
+    }
+}
 export default  {
     register,
     login,
+    refresh,
+    logout,
 };
-
