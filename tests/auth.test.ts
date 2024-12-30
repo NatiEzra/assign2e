@@ -144,7 +144,7 @@ describe("Auth Tests", () => {
     testUser.refreshToken = response.body.refreshToken;
 
     const response2 = await request(app).post("/auth/logout").send({
-      refreshToken: testUser.refreshToken,
+      userId: testUser._id,
     });
     expect(response2.statusCode).toBe(200);
 
