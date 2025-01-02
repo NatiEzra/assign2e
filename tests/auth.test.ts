@@ -90,6 +90,14 @@ describe("Auth Tests", () => {
     });
     expect(response2.statusCode).not.toBe(200);
   });
+  test("Auth test login fail null email", async () => {
+    const response = await request(app).post("/auth/login").send({
+      password: "sdfsd",
+    });
+    expect(response.statusCode).not.toBe(200);
+  });
+
+
 
   test("Auth test me", async () => {
     const response = await request(app).post("/posts").send({
@@ -118,6 +126,12 @@ describe("Auth Tests", () => {
     testUser.accessToken = response.body.accessToken;
     testUser.refreshToken = response.body.refreshToken;
   });
+  test("Test refresh token fail", async () => {
+    const response = await request(app).post("/auth/refresh").send({
+      refreshToken: "sdfsd",
+    });
+    expect(response.statusCode).not.toBe(200);
+  });
 
   test("Double use refresh token", async () => {
     const response = await request(app).post("/auth/refresh").send({
@@ -135,6 +149,12 @@ describe("Auth Tests", () => {
       refreshToken: refreshTokenNew,
     });
     expect(response3.statusCode).not.toBe(200);
+  });
+  test ("refresh token fail", async () => {
+    const response = await request(app).post("/auth/refresh").send({
+      refreshToken:"",
+    });
+    expect(response.statusCode).not.toBe(200);
   });
 
   test("Test logout", async () => {
@@ -155,7 +175,7 @@ describe("Auth Tests", () => {
 
   });
 
-  jest.setTimeout(10000);
+  jest.setTimeout(15000);
   test("Test timeout token ", async () => {
     const response = await request(app).post("/auth/login").send(testUser);
     expect(response.statusCode).toBe(200);
@@ -188,4 +208,15 @@ describe("Auth Tests", () => {
     });
     expect(response4.statusCode).toBe(201);
   });
+  test("test no process.env.JWT_SECRET", async () => {
+    process.env.TOKEN_SECRET = "";
+    const response = await request(app).post("/auth/login").send(testUser);
+    expect(response.statusCode).not.toBe(200);
+  });
+  test("test no db", async () => {
+    mongoose.connection.close();
+    const response = await request(app).post("/auth/login").send(testUser);
+    expect(response.statusCode).not.toBe(200);
+    
+  } );
 });

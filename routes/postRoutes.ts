@@ -68,8 +68,8 @@ import swaggerJSDoc from 'swagger-jsdoc';
  *         description: Server error
  */
 
-router.post('/', authMiddleware, postController.createPost.bind(postController));
-//router.post('/', authMiddleware ,postController.createPost);
+//router.post('/', authMiddleware, postController.createPost.bind(postController));
+router.post('/', authMiddleware ,postController.createPost);
 
 /**
  * @swagger
