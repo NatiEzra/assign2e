@@ -1,9 +1,11 @@
 const port=process.env.PORT;
+
 import initApp from "./server";
 
 initApp().then((app) => {
-  app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+  console.log("here "+ process.env.PORT +" "+ port);
+  app.listen(process.env.PORT, () => {
+    console.log(`Server is running on port ${process.env.PORT}`);
   });
 
 });

@@ -150,14 +150,11 @@ const verifyRefreshToken = (refreshToken: string | undefined) => {
         }
         //verify token
         if (!process.env.TOKEN_SECRET) {
-            console.log("hello no token secret");
             reject("fail");
             return;
         }
         jwt.verify(refreshToken, process.env.TOKEN_SECRET, async (err: any, payload: any) => {
             if (err) {
-                console.log(err);
-                console.log("hello error in verify");
                 reject("fail");
                 return
             }
@@ -189,7 +186,6 @@ const verifyRefreshToken = (refreshToken: string | undefined) => {
 }
 const logout = async (req: Request, res: Response) => {
     try {
-        console.log("here "+req.body);
         const user = await userModel.findById(req.body.userId);
         if (!user) {
             res.status(400).send("fail");
